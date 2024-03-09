@@ -25,7 +25,9 @@ const Business = () => {
   const [exchangesList, setExchangesList] = useState([]);
   const [sectorsList, setSectorsList] = useState([]);
 
+  const [selectedBusinessCategoryId, setSelectedBusinessCategoryId] = useState([]);
   const [businessCategoriesList, setBusinessCategoriesList] = useState([]);
+  const [businessSubCategoriesList, setBusinessSubCategoriesList] = useState([]);
 
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
@@ -40,12 +42,12 @@ const Business = () => {
     if (editedDocument) { 
       const form = document.getElementById("documentForm");
       form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
-      form.elements["businessCategory"].value = selectedCategoryId;
+      form.elements["businessCategory"].value = selectedBusinessCategoryId;
       form.elements["name"].value = editedDocument.name;
     };
 
     const httpBackendService = new HttpBackendService();
-    httpBackendService.fetchData("getBannerCategories")
+    httpBackendService.fetchData("getBusinessCategories")
     .then((data) => {
       // fetching data
       console.info('fetching business categories data:', data);
@@ -63,21 +65,11 @@ const Business = () => {
   const [columnDefs, setColumnDefs] = useState([
 
     { field: 'Business Name', sortable: true, filter: true, width: 180 },
-    { field: 'Address', sortable: true },
-    { field: 'Postcode', sortable: true, width: 150 },
-  
-    { field: 'Contact Number', sortable: true },
-    
-    { field: 'Email', sortable: true },
-    
-    { field: 'Activation code', sortable: true },
-    
-  
-
-
-
-
-    
+    { field: 'Postcode', sortable: true, width: 150 },  
+    { field: 'Phone Number', sortable: true },
+    { field: 'Mobile Number', sortable: true },    
+    { field: 'Email', sortable: true },    
+    { field: 'Activation code', sortable: true },    
     {
       field: 'actions',
       cellRenderer: params => {
@@ -231,12 +223,30 @@ const Business = () => {
       });
   };
   const handleBusinessCategoryChange = (event) => {
-    const selectedCategoryId = event.target.value;
-    setSelectedCategoryId(selectedCategoryId);
-    if (selectedCategoryId != "") {
-      fetchDataFromAPI(selectedCategoryId); 
-    }    
+    const selectedBusinessCategoryId = event.target.value;
+    setSelectedBusinessCategoryId(selectedBusinessCategoryId);
+    if (selectedBusinessCategoryId != "") {
+      fetchDataFromAPI(selectedBusinessCategoryId); 
+    } else {
+      setBusinessSubCategoriesList([]);
+    }   
   };
+
+  const fetchDataFromAPI = (selectedBusinessCategoryId) => {
+    // Create an instance of the HttpBackendService
+    const httpBackendService = new HttpBackendService();
+
+    httpBackendService.fetchSubCategories("getBusinessSubCategories", selectedBusinessCategoryId)
+    .then((data) => {
+      // fetching data
+      console.info('fetching Business Sub Categories data:', data);
+      setBusinessSubCategoriesList(data);
+    })
+    .catch((error) => {
+      console.error('Error fetching Sub Categories data:', error);
+    });
+  };
+
   const handleSubmit = (event) => {
 
     console.log("handleSubmit() method called > ");
@@ -398,10 +408,10 @@ const Business = () => {
                     </Form.Select>
         </Form.Group>
         <Form.Group as={Col} md="2" className="mr-3">
-                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                    <Form.Select aria-label="businessSubCategory" name="businessSubCategoryFilter" required isValid={validated}>
                           <option value="">Sub Category</option>
-                          {businessCategoriesList.map((businessCategory, index) => (
-                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          {businessSubCategoriesList.map((businessSubCategory, index) => (
+                            <option key={index}  value={businessSubCategory.subCategoryDocId}>{businessSubCategory.name}</option>
                           ))}
                     </Form.Select>
         </Form.Group>
