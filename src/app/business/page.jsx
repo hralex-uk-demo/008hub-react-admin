@@ -1,202 +1,189 @@
 'use client'
 
 import React, { useState, useEffect } from "react";
-
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { Button, Modal, Badge, Form, Dropdown, Col, Row } from 'react-bootstrap';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 
-import { Badge, Button, Modal, Form, Col, Row } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { FaEdit, FaTrash, FaArrowUp, FaArrowDown  } from 'react-icons/fa';
+import { GraphQLService } from '../graphql/graphql.service';
 
 import { HttpBackendService } from '../services/httpbackend.service';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchSubscriptionsData } from '../redux/subscriptionsSlice';
-
 const { v4: uuidv4 } = require('uuid');
 
-const Sectors = () => {
+const Business = () => {
 
   const [rowData, setRowData] = useState([]);
   const [validated, setValidated] = useState(false);
-  const [editedCustomer, setEditedCustomer] = useState(null);
+  const [editedStock, setEditedStock] = useState(null);
   const [modalMode, setModalMode] = useState("Add");
-  const [deletedCustomer, setDeletedCustomer] = useState({});
-  const [subscriptionsList, setSubscriptionsList] = useState([]);
+  const [deletedStock, setDeletedStock] = useState({});
+  const [editedDocument, setEditedDocument] = useState(null);
+  const [currenciesList, setCurrenciesList] = useState([]);
+  const [exchangesList, setExchangesList] = useState([]);
+  const [sectorsList, setSectorsList] = useState([]);
 
-  /**
-  const dispatch = useDispatch();
-  const subscriptionsListRedux = useSelector((state) => state.subscriptions);
-   */
+  const [businessCategoriesList, setBusinessCategoriesList] = useState([]);
 
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
     suppressHorizontalScroll: true, // Disable horizontal scroll bar.
     rowHeight: 50, // Adjust the row height as needed
-  }; 
-  
+  };
+
+  useEffect(() => {
+    console.log("useEffect() method called");
+    console.log(editedDocument);
+
+    if (editedDocument) { 
+      const form = document.getElementById("documentForm");
+      form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
+      form.elements["businessCategory"].value = selectedCategoryId;
+      form.elements["name"].value = editedDocument.name;
+    };
+
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBannerCategories")
+    .then((data) => {
+      // fetching data
+      console.info('fetching business categories data:', data);
+      setBusinessCategoriesList(data);
+    })
+    .catch((error) => {
+      console.error('Error fetching business categories data:', error);
+    });
+
+  }, [editedDocument]);
   // Define CSS styles for the cell and header font size
-  const cellStyle = { fontSize: '16px' }; 
-  const headerStyle = { fontSize: '16px' }; 
+  const cellStyle = { fontSize: '16px' };
+  const headerStyle = { fontSize: '16px' };
 
   const [columnDefs, setColumnDefs] = useState([
-    {
-      headerName: 'Name',
-      valueGetter: (params) => `${params.data.firstName} ${params.data.lastName}`,
-      sortable: true
-    },
-    { field: 'mobileNumber', headerName: 'Mobile Number',sortable: true },
-    { field: 'totalInvestment', headerName: 'Total Investment', sortable: true },
-    { field: 'currentValue', headerName: 'Current Value', sortable: true },
-    { field: 'change',  headerName: 'Change',
-    cellRenderer: params => {
-      // You can return any JSX or HTML content here
-      const changePercentage = calculateInvestmentChange(params.data.totalInvestment, params.data.currentValue);
-      const colorClass = getColorClass(changePercentage);
-      const arrowIcon = getArrowTypesClass(changePercentage);
 
-      return (
-        <div className={colorClass} style={{ display: 'flex', alignItems: 'center' }}>
-            {changePercentage}% <div style={{ marginTop: '-3px', marginLeft: '5px' }}> {arrowIcon} </div>
-        </div>
-      );
-    },
-    sortable: false,
-    filter: false
-    },
-    { field: 'subscriptionType',
+    { field: 'Business Name', sortable: true, filter: true, width: 180 },
+    { field: 'Address', sortable: true },
+    { field: 'Postcode', sortable: true, width: 150 },
+  
+    { field: 'Contact Number', sortable: true },
+    
+    { field: 'Email', sortable: true },
+    
+    { field: 'Activation code', sortable: true },
+    
+  
+
+
+
+
+    
+    {
+      field: 'actions',
       cellRenderer: params => {
         // You can return any JSX or HTML content here
         return (
-          <div>
-            {params.data.subscriptionType === 'Basic'
-              ? (<Badge bg="success">{params.data.subscriptionType.charAt(0).toUpperCase() + params.data.subscriptionType.slice(1)}</Badge>)
-              : params.data.subscriptionType === 'Standard'
-                ? (<Badge bg="primary">{params.data.subscriptionType.charAt(0).toUpperCase() + params.data.subscriptionType.slice(1)}</Badge>)
-                : (<Badge bg="info">{params.data.subscriptionType.charAt(0).toUpperCase() + params.data.subscriptionType.slice(1)}</Badge>)}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <FaEdit onClick={() => onEditStock(params.data)} style={{ cursor: 'pointer', marginRight: '10px', marginTop: '10px', fontSize: 20 }} />
+            <FaTrash onClick={() => onDeleteStock(params.data)} style={{ cursor: 'pointer', marginTop: '10px', fontSize: 17 }} />
           </div>
         );
       },
       sortable: false,
       filter: false
     },
-    { field: 'actions',
-    cellRenderer: params => {      
-      // You can return any JSX or HTML content here
-      return (
-       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <FaEdit onClick={() => onEditCustomer(params.data)} style={{ cursor: 'pointer', marginRight: '10px', marginTop: '10px', fontSize : 20 }} />
-        <FaTrash onClick={() => onDeleteCustomer(params.data)}  style={{ cursor: 'pointer', marginTop: '10px', fontSize : 17}} />
-       </div>       
-      );
-    },
-    sortable: false,
-    filter: false},
   ]);
 
-  function calculateInvestmentChange(initialInvestment, currentInvestment) {
-    const initialInvestmentValue = parseFloat(initialInvestment);
-    const currentInvestmentValue = parseFloat(currentInvestment);
-  
-    if (isNaN(initialInvestmentValue) || isNaN(currentInvestmentValue)) {
-      return "";
-    }
-  
-    const changeAmount = currentInvestmentValue - initialInvestmentValue;
-    const changePercentage = ((changeAmount / initialInvestmentValue) * 100).toFixed(2);
-  
-    return parseFloat(changePercentage);
-  }
-  
-  function getColorClass(changePercentage) {
-    const changePercentageFloat = parseFloat(changePercentage);
-    return changePercentageFloat > 0 ? 'positive-value' : changePercentageFloat < 0 ? 'negative-value' : '';
-  }
-  
-  function getArrowTypesClass(changePercentage) {
-    const changePercentageFloat = parseFloat(changePercentage);
-    return changePercentageFloat > 0 ?  <FaArrowUp/> : changePercentageFloat < 0 ?  <FaArrowDown/> : '';
-  }
-  
-
-  const onEditCustomer = (params) => {
-    console.log("onEditCustomer() method called");
+  const onEditStock = (params) => {
+    console.log("onEditStock() method called");
     console.log(params);
-    setEditedCustomer(params);
+    setEditedStock(params);
     setModalMode("Edit"); // Step 3: Set modal mode to "Edit"
     openModal();
   };
 
-  const onDeleteCustomer = (params) => {
-    console.log("onDeleteCustomer() method called");
+  const onDeleteStock = (params) => {
+    console.log("onDeleteStock() method called");
     console.log(params);
-    setDeletedCustomer(params);
+    setDeletedStock(params);
     openDeleteModal();
   };
 
-  const handleAddCustomerClick = () => {
-    setEditedCustomer(null); // Clear any existing edited stock data
+  const handleAddStockClick = () => {
+    setEditedStock(null); // Clear any existing edited stock data
     setModalMode("Add"); // Set modal mode to "Add"
     openModal();
   };
 
   useEffect(() => {
     console.log("useEffect() method called");
-    console.log(editedCustomer);
+    console.log(editedStock);
 
-    if (editedCustomer) {
-      const form = document.getElementById("customerForm");
-      form.elements["id"].value = editedCustomer._id;
-      form.elements["firstName"].value = editedCustomer.firstName;
-      form.elements["lastName"].value = editedCustomer.lastName;
-      form.elements["mobileNumber"].value = editedCustomer.mobileNumber;
-      form.elements["totalInvestment"].value = editedCustomer.totalInvestment;
-      form.elements["subscriptionType"].value = editedCustomer.subscriptionType;
-    };
+    if (editedStock) {
+      const form = document.getElementById("stockForm");
+      form.elements["id"].value = editedStock.id;
+      form.elements["stockSymbol"].value = editedStock.stockSymbol;
+      form.elements["companyName"].value = editedStock.companyName;
+      form.elements["currencySymbol"].value = editedStock.currencySymbol;
+      form.elements["sectorName"].value = editedStock.sectorName;
+      form.elements["exchangeCode"].value = editedStock.exchangeCode;
+    }
 
-    fetchDataFromAPI();  
-    
+
+    // Populate all static data
+
+    // Create an instance of the HttpBackendService
     const httpBackendService = new HttpBackendService();
 
-    httpBackendService.fetchData("subscriptions")
-    .then((data) => {
-      // fetching data
-      console.info('fetching subscriptions data:', data);
-      setSubscriptionsList(data);
-    })
-    .catch((error) => {
-      console.error('Error fetching subscriptions data:', error);
-    });
+    httpBackendService.fetchData("currencies")
+      .then((data) => {
+        // fetching data
+        console.info('fetching currencies data:', data);
+        setCurrenciesList(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching customers data:', error);
+      });
 
-    // TODO : dispatch(fetchSubscriptionsData());
+      httpBackendService.fetchData("exchanges")
+      .then((data) => {
+        // fetching data
+        console.info('fetching exchanges data:', data);
+        setExchangesList(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching exchanges data:', error);
+      });
 
-  }, [editedCustomer]);
-  
+      httpBackendService.fetchData("sectors")
+      .then((data) => {
+        // fetching data
+        console.info('fetching sectors data:', data);
+        setSectorsList(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching sectors data:', error);
+      });
 
-  const fetchDataFromAPI = () => {
-        // Create an instance of the HttpBackendService
-        const httpBackendService = new HttpBackendService();
+    // Create an instance of the GraphQLService
+    const graphQLService = new GraphQLService();
 
-        httpBackendService.fetchData("customers")
-        .then((data) => {
-          // fetching data
-          console.info('fetching customers data:', data);
-          setRowData(data);
-        })
-        .catch((error) => {
-          console.error('Error fetching customers data:', error);
-        });
-  };
-
-
+    // Fetch data from the service when the component mounts
+    graphQLService.fetchStocksData()
+      .then((data) => {
+        // fetching data
+        console.info('fetching data:', data);
+        setRowData(data);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+      });
+  }, [editedStock]); // The empty array [] ensures this effect runs only once when the component mounts
 
   // State to track if the modal should be shown or hidden
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const amountRegexPattern = /^0\d{10}$/;
-  
+
   // Function to open the modal
   const openModal = () => {
     setValidated(false);
@@ -219,25 +206,37 @@ const Sectors = () => {
   };
 
   // Function to close the delete modal
-  const deleteCustomer = () => {  
-    
-    console.log("deleteCustomer() method called > ", deletedCustomer._id)
+  const deleteStock = () => {
 
-      const httpBackendService = new HttpBackendService();
+    console.log("deleteStock() method called > ", deletedStock.id)
+    closeDeleteModal();
 
-      httpBackendService.deleteDocument("customers", deletedCustomer._id)
+    const graphQLService = new GraphQLService();
+
+    // Fetch data from the service when the component mounts
+    graphQLService.deleteStock(deletedStock.id)
       .then((data) => {
-        closeDeleteModal();
-        // fetching data
-        fetchDataFromAPI();
-        console.info('Deleting customer data:', data);                  
+        closeModal();
+        graphQLService.fetchStocksData()
+          .then((data) => {
+            // Update the rowData state with the fetched data
+            setRowData(data);
+          })
+          .catch((error) => {
+            console.error('Error fetching data:', error);
+          });
       })
       .catch((error) => {
-        console.error('Error deleting customer data:', error);
+        console.error('Error fetching data:', error);
       });
-
   };
-
+  const handleBusinessCategoryChange = (event) => {
+    const selectedCategoryId = event.target.value;
+    setSelectedCategoryId(selectedCategoryId);
+    if (selectedCategoryId != "") {
+      fetchDataFromAPI(selectedCategoryId); 
+    }    
+  };
   const handleSubmit = (event) => {
 
     console.log("handleSubmit() method called > ");
@@ -248,80 +247,108 @@ const Sectors = () => {
     event.preventDefault();
     event.stopPropagation();
 
-    if (modalMode  === 'Add') {
+    console.log("modalMode > ", modalMode);
 
-            console.log("handleSubmit() method called", modalMode );
-            // Generate a new UUID
-            const newUUID = uuidv4();
+    if (modalMode === 'Add') {
 
-              let newCustomerJSON = {
-                  id: newUUID,
-                  firstName : form.elements["firstName"].value,
-                  lastName : form.elements["lastName"].value,
-                  mobileNumber : form.elements["mobileNumber"].value,
-                  totalInvestment : form.elements["totalInvestment"].value,
-                  currentValue : form.elements["totalInvestment"].value,
-                  subscriptionType : form.elements["subscriptionType"].value
-              };
+      var newStockJSON = {};
 
-            console.log(newCustomerJSON);
+      console.log("handleSubmit() method called > modalMode", modalMode);
+      // Generate a new UUID
+      const newUUID = uuidv4();
+
+      newStockJSON = {
+        createinvestastocksinput: {
+          id: newUUID,
+          stockSymbol: form.elements["stockSymbol"].value,
+          companyName: form.elements["companyName"].value,
+          currencySymbol: form.elements["currencySymbol"].value,
+          sectorName: form.elements["sectorName"].value,
+          exchangeCode: form.elements["exchangeCode"].value,
+          sharePrice: 10.0,
+          status: 'new'
+        }
+      };
 
 
-            if (form.checkValidity() === true) {
-                console.log(newCustomerJSON);
-                setValidated(true);
-                
-                const httpBackendService = new HttpBackendService();
+      console.log(newStockJSON);
 
-                httpBackendService.insertDocument("customers", newCustomerJSON)
-                .then((data) => {
-                  closeModal();
-                  // fetching data
-                  fetchDataFromAPI();
-                  console.info('inserting customer data:', data);                  
-                })
-                .catch((error) => {
-                  console.error('Error inserting customer data:', error);
-                });
-              
-              }  
-              
+
+      if (form.checkValidity() === true) {
+        console.log(newStockJSON);
+        setValidated(true);
+
+        const graphQLService = new GraphQLService();
+
+        // Fetch data from the service when the component mounts
+        graphQLService.createStock(newStockJSON)
+          .then((data) => {
+            // Update the rowData state with the fetched data
+            setRowData(data);
+            closeModal();
+            graphQLService.fetchStocksData()
+              .then((data) => {
+                // Update the rowData state with the fetched data
+                setRowData(data);
+              })
+              .catch((error) => {
+                console.error('Error fetching data:', error);
+              });
+          })
+          .catch((error) => {
+            console.error('Error fetching data:', error);
+          });
+      }
+
     } else {
 
-      var udpateCustomerJSON = {};
+      var udpateStockJSON = {};
 
-            console.log("handleSubmit() method called", modalMode );
+      console.log("handleSubmit() method called", modalMode);
 
-            udpateCustomerJSON = {
-                  id: form.elements["id"].value,
-                  firstName : form.elements["firstName"].value,
-                  lastName : form.elements["lastName"].value,
-                  mobileNumber : form.elements["mobileNumber"].value,
-                  totalInvestment : form.elements["totalInvestment"].value,
-                  subscriptionType : form.elements["subscriptionType"].value
-              };
+      udpateStockJSON = {
+        updateinvestastocksinput: {
+          id: form.elements["id"].value,
+          stockSymbol: form.elements["stockSymbol"].value,
+          companyName: form.elements["companyName"].value,
+          currencySymbol: form.elements["currencySymbol"].value,
+          sectorName: form.elements["sectorName"].value,
+          exchangeCode: form.elements["exchangeCode"].value
+        }
+      };
 
-            console.log(udpateCustomerJSON);
 
-            if (form.checkValidity() === true) {
-                console.log(udpateCustomerJSON);
-                setValidated(true);
-                
-                const httpBackendService = new HttpBackendService();
+      console.log(udpateStockJSON);
 
-                httpBackendService.updateDocument("customers", udpateCustomerJSON)
-                .then((data) => {
-                  closeModal();
-                  // fetching data
-                  fetchDataFromAPI();  
-                  console.info('updating customers data:', data);                  
-                })
-                .catch((error) => {
-                  console.error('Error updating customers data:', error);
-                });
-              }
+
+      if (form.checkValidity() === true) {
+        console.log(udpateStockJSON);
+        setValidated(true);
+
+        const graphQLService = new GraphQLService();
+
+        // Fetch data from the service when the component mounts
+        graphQLService.updateStock(udpateStockJSON)
+          .then((data) => {
+            // Update the rowData state with the fetched data
+            //setRowData(data);
+            closeModal();
+            graphQLService.fetchStocksData()
+              .then((data) => {
+                // Update the rowData state with the fetched data
+                setRowData(data);
+              })
+              .catch((error) => {
+                console.error('Error fetching data:', error);
+              });
+          })
+          .catch((error) => {
+            console.error('Error fetching data:', error);
+          });
+      }
+
     }
-    
+
   };
 
   // Function to auto-size columns based on content.
@@ -329,151 +356,211 @@ const Sectors = () => {
     params.api.sizeColumnsToFit();
   };
 
+  useEffect(() => {
+    console.log("useEffect() method called");
+  
+    // Fetch business categories
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBusinessCategories")
+      .then((businessCategoriesData) => {
+        console.info('fetching Business Categories data:', businessCategoriesData);
+        setBusinessCategoriesList(businessCategoriesData);
+      })
+      .catch((error) => {
+        console.error('Error fetching Business Categories data:', error);
+      });
+  
+    // Fetch stocks
+    const graphQLService = new GraphQLService();
+    graphQLService.fetchStocksData()
+      .then((stocksData) => {
+        console.info('fetching stock data:', stocksData);
+        setRowData(stocksData);
+      })
+      .catch((error) => {
+        console.error('Error fetching stock data:', error);
+      });
+  
+  }, []);
+  
+
+
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Customers</h1>
+        <h1 className="h2">Business</h1>
+        <Form.Group as={Col} md="2" className="ms-auto mr-3">
+                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                          <option value="">Category</option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
+        <Form.Group as={Col} md="2" className="mr-3">
+                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                          <option value="">Sub Category</option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
         <div className="btn-toolbar mb-2 mb-md-0">
-          <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddCustomerClick}>
+          <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddStockClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
           </button>
         </div>
-      </div>      
+      </div>
       <AgGridReact
         rowData={rowData}
-        columnDefs={columnDefs} 
+        columnDefs={columnDefs}
         gridOptions={gridOptions} // Pass the gridOptions object here.
         onFirstDataRendered={onFirstDataRendered} // Call auto-size function after data is rendered.
         defaultColDef={{ cellStyle, headerStyle }}
-        />
+      />
 
       <Modal show={showModal} onHide={closeModal}>
-      <Form
-          id="customerForm"
+        <Form
+          id="stockForm"
           noValidate
           validated={validated}
-          onSubmit={handleSubmit}>       
-            <Modal.Header closeButton>
-              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' }  Customer</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>      
-             
+          onSubmit={handleSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title>{ modalMode === 'Add' ? 'New' : 'Edit' } Business</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+
             {/* Add a hidden field for the ID */}
             <Form.Group as={Col} md="4">
-                <Form.Control
-                  name="id"
-                  type="hidden"
-                />
+              <Form.Control
+                name="id"
+                type="hidden"
+              // Set the type to "hidden"
+              />
             </Form.Group>
 
             <Row className="mb-4">
+            <Form.Group as={Col} md="6">
+                <Form.Label>Business Name</Form.Label>
+                <Form.Control
+                  name="companyName"
+                  required
+                  type="text"
+                  placeholder=""
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="6" >
+                <Form.Label>Address </Form.Label>
+                <Form.Control
+                  name="stockSymbol"
+                  placeholder="Line 1, Line 2, City/Town, Postcode, Country"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>
+           
 
-                <Form.Group as={Col} md="6" >
-                  <Form.Label>First Name</Form.Label>
-                  <Form.Control
-                    name="firstName"
-                    required
-                    type="text"
-                    isValid={validated}  
-                  />
-                </Form.Group>
+            </Row>
 
-                <Form.Group as={Col} md="6">
-                  <Form.Label>Last Name</Form.Label>
-                  <Form.Control
-                    name="lastName"                    
-                    required
-                    type="text"
-                    isValid={validated}  
-                  />
-                </Form.Group>
-
-              </Row>
-
-              
             <Row className="mb-4">
 
               <Form.Group as={Col} md="6" >
-                <Form.Label>Mobile Number</Form.Label>
-                <Form.Control
-                  name="mobileNumber"
-                  required
-                  type="text"
-                  isValid={validated}  
-                />
+                <Form.Label>Business category</Form.Label>
+                <Form.Select aria-label="currencySymbol" name="currencySymbol" required>
+                  <option value="">Select</option>
+                  {currenciesList.map((currency) => (
+                    <option key={currency._id} value={currency.symbol}>
+                      {currency.name} ({currency.symbol})
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
 
               <Form.Group as={Col} md="6">
-                <Form.Label>Total Investment</Form.Label>
+                <Form.Label>Business sub-category</Form.Label>
+                <Form.Select aria-label="exchangeCode" name="exchangeCode" required>
+                <option value="">Select</option>
+                  {exchangesList.map((exchange) => (
+                    <option key={exchange.code} value={exchange.code}>
+                      {exchange.name} ({exchange.code})
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+
+            </Row>            
+
+      
+            <Row className="mb-4">
+
+              <Form.Group as={Col} md="6" >
+                <Form.Label>	Contact Number</Form.Label>
                 <Form.Control
-                  name="totalInvestment"                             
+                  name="stockSymbol"
                   required
                   type="text"
-                  pattern="^\d+(\.\d{1,2})?$"          
-                  isValid={validated}  
+                  isValid={validated}
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="6">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  name="companyName"
+                  required
+                  type="text"
+                  placeholder=""
                 />
               </Form.Group>
 
             </Row>
 
-               
-            <Row className="mb-4">
-
-            <Form.Group as={Col} md="6">
-                <Form.Label>Subscription</Form.Label>
-                <Form.Select aria-label="subscriptionType" name="subscriptionType" required isValid={validated} >
-                      <option value=""></option>
-                      {subscriptionsList.map((subscription, index) => (
-                        <option key={index}  value={subscription.type}>{subscription.type} ({subscription.amount})</option>
-                      ))}
-                </Form.Select>
-            </Form.Group>
-
-            </Row>
-
-             
 
 
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant='primary' type="submit">
-                { modalMode === 'Add' ? 'Save' : 'Update' }
-              </Button>
-              <Button variant='secondary' onClick={closeModal}>
-                Close
-              </Button>
-            </Modal.Footer>
-            </Form>
-          </Modal>
 
 
-           {/* DELETE MODEL */}
-          <Modal show={showDeleteModal} onHide={closeDeleteModal}>
 
-            <Modal.Header closeButton>
-              <Modal.Title>Delete Sector - {deletedCustomer.name} </Modal.Title>
-            </Modal.Header>
 
-            <Modal.Body>
-            <Row className="mb-4">
-              <h3> Are you sure ?</h3>
-              <br></br>
-              Do you really want to delete the sector - {deletedCustomer.name} ? This process cannot be undone.
-            </Row>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant='primary'  onClick={deleteCustomer}>
-                Delete
-              </Button>
-              <Button variant='secondary' onClick={closeDeleteModal}>
-                Cancel
-              </Button>
-            </Modal.Footer>
-          </Modal>  
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant='primary' type="submit">
+            { modalMode === 'Add' ? 'Save' : 'Update' }
+            </Button>
+            <Button variant='secondary' onClick={closeModal}>
+              Close
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+
+      {/* DELETE MODEL */}
+      <Modal show={showDeleteModal} onHide={closeDeleteModal}>
+
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Stock - {deletedStock.stockSymbol} </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          <Row className="mb-4">
+            <h3> Are you sure ?</h3>
+            <br></br>
+            Do you really want to delete the company - {deletedStock.companyName} ? This process cannot be undone.
+          </Row>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='primary' onClick={deleteStock}>
+            Delete
+          </Button>
+          <Button variant='secondary' onClick={closeDeleteModal}>
+            Cancel
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </div>
   );
 
 };
 
-export default Sectors;
+export default Business;

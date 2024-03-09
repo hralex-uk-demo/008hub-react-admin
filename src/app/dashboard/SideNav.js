@@ -29,7 +29,7 @@ function SideNav({ setActiveItem }) {
             <a ><img src="../meni-ic-1.png" /></a>
             <div class="mainMenu1">Dashboard</div>
           </li>
-          <li className={selectedItem === 'stocks' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('stocks')}>
+          <li className={selectedItem === 'business' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('business')}>
             <a href="#"><img src="../meni-ic-3.png" /></a>
             <div class="mainMenu1">Business</div>
           </li>

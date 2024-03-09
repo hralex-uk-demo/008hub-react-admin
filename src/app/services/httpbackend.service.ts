@@ -1,6 +1,6 @@
 export class HttpBackendService {
   
-    hubAPIEndpoint = 'https://gb-008hub-demo.appspot.com/app/admin';
+    hubAPIEndpoint = 'https://gb-008hub-demo.appspot.com/portal/admin';
     insertAPIEndpoint = 'https://eu-west-2.aws.data.mongodb-api.com/app/data-yebmz/endpoint/investa_mongodb_insert';
     updateAPIEndpoint = 'https://eu-west-2.aws.data.mongodb-api.com/app/data-yebmz/endpoint/investa_mongodb_update';
     deleteAPIEndpoint = 'https://eu-west-2.aws.data.mongodb-api.com/app/data-yebmz/endpoint/investa_mongodb_delete';
@@ -34,6 +34,8 @@ export class HttpBackendService {
 
         const requestBody = { endpoint :  endpointOperation, categoryDocId: categoryId};
 
+        console.log('fetchSubCategories() requestBody > ', requestBody);
+
         const response = await fetch(this.hubAPIEndpoint , {
           method: 'POST',
           headers: {
@@ -47,6 +49,7 @@ export class HttpBackendService {
         }
 
         const responseData = await response.json();
+        console.log("received response from server > fetchData > ", responseData);
         console.log("received response from server > fetchData > ", responseData.data.subCategories);
         return responseData.data.subCategories;
     }

@@ -166,8 +166,10 @@ const BusinessCategory = () => {
 
               let newBusinessCategoryJSON = {
                   endpoint: "addBannerCategory",
-                  name : form.elements["name"].value,
-                  status: true
+                  category: {
+                    name : form.elements["name"].value,
+                    status: true 
+                  }
               };
             
 
@@ -201,8 +203,10 @@ const BusinessCategory = () => {
             udpateBusinessCategoryJSON = {
                   endpoint: "updateBannerCategory",
                   categoryDocId: form.elements["categoryDocId"].value,                 
-                  name : form.elements["name"].value,
-                  status: false,
+                  category: {
+                    name : form.elements["name"].value,
+                    status: false,
+                  }
               };
 
             console.log(udpateBusinessCategoryJSON);

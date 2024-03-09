@@ -1,7 +1,7 @@
 // ContentPanel.js
 import React from 'react';
 
-import Stocks from '../banners/page';
+import Business from '../business/page';
 import DashboardScreen from '../dashboardPage/page';
 import Customers from '../customers/page';
 import BusinessSubCategories from '../settings/business-sub-categories/page';
@@ -20,7 +20,7 @@ function ContentPanel({ activeItem }) {
   return (
     <main className="col-md-10 ms-sm-auto col-lg-11 px-md-4 px-lg-5 py-lg-3 mainContainer">
       {activeItem === 'dashboardPage' && <div><DashboardScreen></DashboardScreen></div>}      
-      {activeItem === 'stocks' && <div><Stocks></Stocks></div>}
+      {activeItem === 'business' && <div><Business></Business></div>}
       {activeItem === 'customers' && <div><Customers></Customers></div>}
       {activeItem === 'settings' && <div><Settings></Settings></div>}
       {activeItem === 'business-categories' && <div><BusinessCategories></BusinessCategories></div>}
