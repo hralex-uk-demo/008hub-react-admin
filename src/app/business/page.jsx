@@ -261,57 +261,44 @@ const Business = () => {
 
     if (modalMode === 'Add') {
 
-      var newStockJSON = {};
+      var newBusinessJSON = {};
 
       console.log("handleSubmit() method called > modalMode", modalMode);
-      // Generate a new UUID
-      const newUUID = uuidv4();
 
-      newStockJSON = {
-        createinvestastocksinput: {
-          id: newUUID,
-          stockSymbol: form.elements["stockSymbol"].value,
-          companyName: form.elements["companyName"].value,
-          currencySymbol: form.elements["currencySymbol"].value,
-          sectorName: form.elements["sectorName"].value,
-          exchangeCode: form.elements["exchangeCode"].value,
-          sharePrice: 10.0,
-          status: 'new'
-        }
+      newBusinessJSON = {
+          endpoint: 'addBusiness',
+          categoryDocId: form.elements["businessCategory"].value,
+          subCategoryDocId: form.elements["businessSubCategory"].value,
+          businessName: form.elements["businessName"].value,
+          address: { 
+            addressLine1: form.elements["addressLine1"].value,
+            addressLine2: form.elements["addressLine2"].value,
+            city: form.elements["city"].value,
+            region: form.elements["region"].value,
+            postalCode: form.elements["postalCode"].value,
+          }                
       };
 
-
-      console.log(newStockJSON);
-
+      console.log(newBusinessJSON);
 
       if (form.checkValidity() === true) {
-        console.log(newStockJSON);
+
+        console.log(newBusinessJSON);
         setValidated(true);
-
-        const graphQLService = new GraphQLService();
-
-        // Fetch data from the service when the component mounts
-        graphQLService.createStock(newStockJSON)
-          .then((data) => {
-            // Update the rowData state with the fetched data
-            setRowData(data);
-            closeModal();
-            graphQLService.fetchStocksData()
-              .then((data) => {
-                // Update the rowData state with the fetched data
-                setRowData(data);
-              })
-              .catch((error) => {
-                console.error('Error fetching data:', error);
-              });
-          })
-          .catch((error) => {
-            console.error('Error fetching data:', error);
-          });
+        // Invoke HttpBackendService
+        const httpBackendService = new HttpBackendService();
+        httpBackendService.insertDocument(newBusinessJSON)
+                .then((data) => {
+                  closeModal();
+                  fetchDataFromAPI();
+                  console.info('inserting business category data:', data);                  
+                })
+                .catch((error) => {
+                  console.error('Error inserting business category data:', error);
+                });
       }
-
-    } else {
-
+      
+      } else {
       var udpateStockJSON = {};
 
       console.log("handleSubmit() method called", modalMode);
@@ -431,7 +418,7 @@ const Business = () => {
 
       <Modal show={showModal} onHide={closeModal}>
         <Form
-          id="stockForm"
+          id="businessForm"
           noValidate
           validated={validated}
           onSubmit={handleSubmit}>
@@ -450,38 +437,14 @@ const Business = () => {
             </Form.Group>
 
             <Row className="mb-4">
-            <Form.Group as={Col} md="6">
-                <Form.Label>Business Name</Form.Label>
-                <Form.Control
-                  name="companyName"
-                  required
-                  type="text"
-                  placeholder=""
-                />
-              </Form.Group>
-              <Form.Group as={Col} md="6" >
-                <Form.Label>Address </Form.Label>
-                <Form.Control
-                  name="stockSymbol"
-                  placeholder="Line 1, Line 2, City/Town, Postcode, Country"
-                  required
-                  type="text"
-                  isValid={validated}
-                />
-              </Form.Group>
-           
-
-            </Row>
-
-            <Row className="mb-4">
 
               <Form.Group as={Col} md="6" >
                 <Form.Label>Business category</Form.Label>
-                <Form.Select aria-label="currencySymbol" name="currencySymbol" required>
+                <Form.Select aria-label="businessCategory" name="businessCategory" required isValid={validated} onChange={handleBusinessCategoryChange}>
                   <option value="">Select</option>
-                  {currenciesList.map((currency) => (
-                    <option key={currency._id} value={currency.symbol}>
-                      {currency.name} ({currency.symbol})
+                  {businessCategoriesList.map((businessCategory) => (
+                    <option key={businessCategory.categoryDocId} value={businessCategory.categoryDocId}>
+                      {businessCategory.name}
                     </option>
                   ))}
                 </Form.Select>
@@ -489,25 +452,91 @@ const Business = () => {
 
               <Form.Group as={Col} md="6">
                 <Form.Label>Business sub-category</Form.Label>
-                <Form.Select aria-label="exchangeCode" name="exchangeCode" required>
+                <Form.Select aria-label="businessSubCategory" name="businessSubCategory" required>
                 <option value="">Select</option>
-                  {exchangesList.map((exchange) => (
-                    <option key={exchange.code} value={exchange.code}>
-                      {exchange.name} ({exchange.code})
+                  {businessSubCategoriesList.map((businessSubCategory) => (
+                    <option key={businessSubCategory.subCategoryDocId} value={businessSubCategory.subCategoryDocId}>
+                      {businessSubCategory.name}
                     </option>
                   ))}
                 </Form.Select>
               </Form.Group>
 
-            </Row>            
+            </Row>   
+
+
+            <Row className="mb-4">
+              <Form.Group as={Col} md="6">
+                  <Form.Label>Business Name</Form.Label>
+                  <Form.Control
+                    name="businessName"
+                    required
+                    type="text"
+                    placeholder=""
+                  />
+                </Form.Group>
+             </Row> 
+
+             <Row className="mb-4">
+              <Form.Group as={Col} md="6" >
+                <Form.Label>Address Line 1</Form.Label>
+                <Form.Control
+                  name="addressLine1"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="6">
+                <Form.Label>Address Line 2</Form.Label>
+                <Form.Control
+                  name="addressLine2"
+                  required
+                  type="text"
+                  placeholder=""
+                />
+              </Form.Group>
+            </Row>
+
+            <Row className="mb-4">
+              <Form.Group as={Col} md="6" >
+                <Form.Label>City</Form.Label>
+                <Form.Control
+                  name="city"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="6">
+                <Form.Label>Region</Form.Label>
+                <Form.Control
+                  name="region"
+                  required
+                  type="text"
+                  placeholder=""
+                />
+              </Form.Group>
+            </Row>                       
+
+            <Row className="mb-4">
+              <Form.Group as={Col} md="6" >
+                <Form.Label>Postal code</Form.Label>
+                <Form.Control
+                  name="postalCode"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>             
+            </Row>
 
       
             <Row className="mb-4">
-
               <Form.Group as={Col} md="6" >
-                <Form.Label>	Contact Number</Form.Label>
+                <Form.Label>Contact Number</Form.Label>
                 <Form.Control
-                  name="stockSymbol"
+                  name="contactNumber"
                   required
                   type="text"
                   isValid={validated}
@@ -516,19 +545,13 @@ const Business = () => {
               <Form.Group as={Col} md="6">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
-                  name="companyName"
+                  name="email"
                   required
                   type="text"
                   placeholder=""
                 />
               </Form.Group>
-
             </Row>
-
-
-
-
-
 
 
           </Modal.Body>
