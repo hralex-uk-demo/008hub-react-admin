@@ -259,22 +259,24 @@ const BannerSubCategory = () => {
 
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
-      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Banner Sub Categories</h1>
-        <Form.Group as={Col} md="2">
-                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
-                          <option value="">Category</option>
-                          {businessCategoriesList.map((businessCategory, index) => (
-                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
-                          ))}
-                    </Form.Select>
-        </Form.Group>
-        <div className="btn-toolbar mb-2 mb-md-0">
-          <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBusinessCategoryClick}>
+<div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 className="h2">Banner Sub Categories</h1>
+    <Form.Group as={Col} md="2" className="ms-auto mr-3">
+        <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange}>
+            <option value="">Category</option>
+            {businessCategoriesList.map((businessCategory, index) => (
+                <option key={index} value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+            ))}
+        </Form.Select>
+    </Form.Group>
+    <div className="btn-toolbar mb-2 mb-md-0">
+        <button type="button" className="btn btn-primary borderRadiusb1 d-flex align-items-center" onClick={handleAddBusinessCategoryClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
-          </button>
-        </div>
-      </div>      
+        </button>
+    </div>
+</div>
+
+     
       <AgGridReact
         rowData={rowData}
         columnDefs={columnDefs} 

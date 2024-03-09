@@ -261,7 +261,8 @@ const BannerSubCategoryItems = () => {
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 className="h2">Banner Sub Categories</h1>
-        <Form.Group as={Col} md="2">
+     
+        <Form.Group as={Col} md="2" className="ms-auto mr-3">
                     <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
                           <option value="">Category</option>
                           {businessCategoriesList.map((businessCategory, index) => (
@@ -269,7 +270,7 @@ const BannerSubCategoryItems = () => {
                           ))}
                     </Form.Select>
         </Form.Group>
-        <Form.Group as={Col} md="2">
+        <Form.Group as={Col} md="2" className="mr-3">
                     <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
                           <option value="">Sub Category</option>
                           {businessCategoriesList.map((businessCategory, index) => (
