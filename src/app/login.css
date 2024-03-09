@@ -1,0 +1,56 @@
+body {
+    background-color: #fff;
+}
+
+.loginBg {
+    background: url('../../public/grid-bg.png') #ffffff;
+    border: 10px solid #F2F6FC;
+    border-radius: 25px;
+
+}
+
+.ftColorWhite {
+    color: #fff !important;
+    font-weight: 400 !important;
+    font-size: 40px;
+    margin-bottom: 0 !important;
+    padding-bottom: 10px !important;
+}
+
+.loginPar {
+    color: #ffffff !important;
+}
+
+.bg-body-tertiary {
+    background-color: #fff !important;
+}
+
+.display-7 {
+    font-size: 32px;
+    font-weight: 500;
+}
+
+.display-8 {
+    color: #6E6E6E;
+}
+
+
+.techPointsSec {
+    margin-bottom: 15px !important;
+}
+
+.techPoints {
+    text-align: left;
+    margin-bottom: 16px;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 0px 8px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-right: 16px;
+}
+
+.bgWhi {
+    background-color: #fff;
+}
