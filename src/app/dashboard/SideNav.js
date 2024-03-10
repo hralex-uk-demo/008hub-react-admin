@@ -29,14 +29,15 @@ function SideNav({ setActiveItem }) {
             <a ><img src="../meni-ic-1.png" /></a>
             <div class="mainMenu1">Dashboard</div>
           </li>
+          <li className={selectedItem === 'stocks' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('stocks')}>
+            <a href="#"><img src="../meni-ic-3.png" /></a>
+            <div class="mainMenu1">Business</div>
+          </li>
           <li className={selectedItem === 'customers' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('customers')}>
             <a href="#"><img src="../meni-ic-2.png" /></a>
             <div class="mainMenu1">Customers</div>
           </li>
-          <li className={selectedItem === 'stocks' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('stocks')}>
-            <a href="#"><img src="../meni-ic-3.png" /></a>
-            <div class="mainMenu1">Stocks</div>
-          </li>
+ 
           <li className={selectedItem === 'settings' ? 'menuSelected' : ''}  onClick={() => handleNavItemClick('settings')}>
             <a href="#"><img src="../meni-ic-4.png" /></a>
             <div class="mainMenu1">Settings</div>

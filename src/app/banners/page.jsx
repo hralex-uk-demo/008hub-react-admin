@@ -20,12 +20,12 @@ const Stocks = () => {
   const [editedStock, setEditedStock] = useState(null);
   const [modalMode, setModalMode] = useState("Add");
   const [deletedStock, setDeletedStock] = useState({});
-  
+  const [editedDocument, setEditedDocument] = useState(null);
   const [currenciesList, setCurrenciesList] = useState([]);
   const [exchangesList, setExchangesList] = useState([]);
   const [sectorsList, setSectorsList] = useState([]);
 
-
+  const [businessCategoriesList, setBusinessCategoriesList] = useState([]);
 
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
@@ -33,6 +33,29 @@ const Stocks = () => {
     rowHeight: 50, // Adjust the row height as needed
   };
 
+  useEffect(() => {
+    console.log("useEffect() method called");
+    console.log(editedDocument);
+
+    if (editedDocument) { 
+      const form = document.getElementById("documentForm");
+      form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
+      form.elements["businessCategory"].value = selectedCategoryId;
+      form.elements["name"].value = editedDocument.name;
+    };
+
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBannerCategories")
+    .then((data) => {
+      // fetching data
+      console.info('fetching business categories data:', data);
+      setBusinessCategoriesList(data);
+    })
+    .catch((error) => {
+      console.error('Error fetching business categories data:', error);
+    });
+
+  }, [editedDocument]);
   // Define CSS styles for the cell and header font size
   const cellStyle = { fontSize: '16px' };
   const headerStyle = { fontSize: '16px' };
@@ -240,7 +263,13 @@ const Stocks = () => {
         console.error('Error fetching data:', error);
       });
   };
-
+  const handleBusinessCategoryChange = (event) => {
+    const selectedCategoryId = event.target.value;
+    setSelectedCategoryId(selectedCategoryId);
+    if (selectedCategoryId != "") {
+      fetchDataFromAPI(selectedCategoryId); 
+    }    
+  };
   const handleSubmit = (event) => {
 
     console.log("handleSubmit() method called > ");
@@ -363,7 +392,23 @@ const Stocks = () => {
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Stocks</h1>
+        <h1 className="h2">Business</h1>
+        <Form.Group as={Col} md="2" className="ms-auto mr-3">
+                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                          <option value="">Category</option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
+        <Form.Group as={Col} md="2" className="mr-3">
+                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                          <option value="">Sub Category</option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
         <div className="btn-toolbar mb-2 mb-md-0">
           <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddStockClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
