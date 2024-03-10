@@ -270,6 +270,7 @@ const Business = () => {
           categoryDocId: form.elements["businessCategory"].value,
           subCategoryDocId: form.elements["businessSubCategory"].value,
           businessName: form.elements["businessName"].value,
+          countryCode: 'gb',
           address: { 
             addressLine1: form.elements["addressLine1"].value,
             addressLine2: form.elements["addressLine2"].value,
