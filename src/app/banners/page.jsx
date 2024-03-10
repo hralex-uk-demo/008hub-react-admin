@@ -61,56 +61,23 @@ const Stocks = () => {
   const headerStyle = { fontSize: '16px' };
 
   const [columnDefs, setColumnDefs] = useState([
-    {
-      field: 'icon',
-      width: 100,
-      cellRenderer: params => {
-        const iconUrl = `https://do1r04b5laugk.cloudfront.net/${params.data.stockSymbol}.png`;
-        // You can return any JSX or HTML content here
-        return (
-          <div>
-            <img src={iconUrl} alt="" className="h-10 w-10 rounded-full bg-gray-50" />
-          </div>
-        );
-      },
-      sortable: false,
-      filter: false
-    },
-    { field: 'stockSymbol', sortable: true, filter: true, width: 180 },
-    { field: 'companyName', sortable: true },
-    { field: 'exchangeCode', sortable: true, width: 150 },
-    {
-      field: 'sharePrice',
-      cellRenderer: params => {
-        const parsedNumber = parseFloat(params.data.sharePrice);
-        const formattedNumber = parsedNumber.toFixed(2);
-        return (
-          <div>
-            {formattedNumber}
-          </div>
-        );
-      },
-      sortable: false,
-      filter: false
-    },
-    { field: 'sectorName', sortable: true },
-    {
-      field: 'status',
-      cellRenderer: params => {
-        // You can return any JSX or HTML content here
-        return (
-          <div>
-            {params.data.status === 'live'
-              ? (<Badge bg="success">{params.data.status.charAt(0).toUpperCase() + params.data.status.slice(1)}</Badge>)
-              : params.data.status === 'New'
-                ? (<Badge bg="primary">{params.data.status.charAt(0).toUpperCase() + params.data.status.slice(1)}</Badge>)
-                : (<Badge bg="info">{params.data.status.charAt(0).toUpperCase() + params.data.status.slice(1)}</Badge>)}
-          </div>
-        );
-      },
-      sortable: false,
-      filter: false
-    },
+
+    { field: 'Business Name', sortable: true, filter: true, width: 180 },
+    { field: 'Address', sortable: true },
+    { field: 'Postcode', sortable: true, width: 150 },
+  
+    { field: 'Contact Number', sortable: true },
+    
+    { field: 'Email', sortable: true },
+    
+    { field: 'Activation code', sortable: true },
+    
+  
+
+
+
+
+    
     {
       field: 'actions',
       cellRenderer: params => {
@@ -389,6 +356,35 @@ const Stocks = () => {
     params.api.sizeColumnsToFit();
   };
 
+  useEffect(() => {
+    console.log("useEffect() method called");
+  
+    // Fetch business categories
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBusinessCategories")
+      .then((businessCategoriesData) => {
+        console.info('fetching Business Categories data:', businessCategoriesData);
+        setBusinessCategoriesList(businessCategoriesData);
+      })
+      .catch((error) => {
+        console.error('Error fetching Business Categories data:', error);
+      });
+  
+    // Fetch stocks
+    const graphQLService = new GraphQLService();
+    graphQLService.fetchStocksData()
+      .then((stocksData) => {
+        console.info('fetching stock data:', stocksData);
+        setRowData(stocksData);
+      })
+      .catch((error) => {
+        console.error('Error fetching stock data:', error);
+      });
+  
+  }, []);
+  
+
+
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
@@ -430,7 +426,7 @@ const Stocks = () => {
           validated={validated}
           onSubmit={handleSubmit}>
           <Modal.Header closeButton>
-            <Modal.Title>{ modalMode === 'Add' ? 'New' : 'Edit' } Stock</Modal.Title>
+            <Modal.Title>{ modalMode === 'Add' ? 'New' : 'Edit' } Business</Modal.Title>
           </Modal.Header>
           <Modal.Body>
 
@@ -444,18 +440,8 @@ const Stocks = () => {
             </Form.Group>
 
             <Row className="mb-4">
-
-              <Form.Group as={Col} md="6" >
-                <Form.Label>Symbol</Form.Label>
-                <Form.Control
-                  name="stockSymbol"
-                  required
-                  type="text"
-                  isValid={validated}
-                />
-              </Form.Group>
-              <Form.Group as={Col} md="6">
-                <Form.Label>Company name</Form.Label>
+            <Form.Group as={Col} md="6">
+                <Form.Label>Business Name</Form.Label>
                 <Form.Control
                   name="companyName"
                   required
@@ -463,13 +449,24 @@ const Stocks = () => {
                   placeholder=""
                 />
               </Form.Group>
+              <Form.Group as={Col} md="6" >
+                <Form.Label>Address </Form.Label>
+                <Form.Control
+                  name="stockSymbol"
+                  placeholder="Line 1, Line 2, City/Town, Postcode, Country"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>
+           
 
             </Row>
 
             <Row className="mb-4">
 
               <Form.Group as={Col} md="6" >
-                <Form.Label>Currency</Form.Label>
+                <Form.Label>Business category</Form.Label>
                 <Form.Select aria-label="currencySymbol" name="currencySymbol" required>
                   <option value="">Select</option>
                   {currenciesList.map((currency) => (
@@ -481,7 +478,7 @@ const Stocks = () => {
               </Form.Group>
 
               <Form.Group as={Col} md="6">
-                <Form.Label>Stock exchange</Form.Label>
+                <Form.Label>Business sub-category</Form.Label>
                 <Form.Select aria-label="exchangeCode" name="exchangeCode" required>
                 <option value="">Select</option>
                   {exchangesList.map((exchange) => (
@@ -494,23 +491,30 @@ const Stocks = () => {
 
             </Row>            
 
-            <Row className="mb-6">
+      
+            <Row className="mb-4">
 
-
-                <Form.Group as={Col} md="6" >
-                  <Form.Label>Sector</Form.Label>
-                  <Form.Select aria-label="sectorName" name="sectorName" required>
-                  <option value="">Select</option>
-                    {sectorsList.map((currency) => (
-                      <option key={currency.name} value={currency.name}>
-                        {currency.name}
-                      </option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-
+              <Form.Group as={Col} md="6" >
+                <Form.Label>	Contact Number</Form.Label>
+                <Form.Control
+                  name="stockSymbol"
+                  required
+                  type="text"
+                  isValid={validated}
+                />
+              </Form.Group>
+              <Form.Group as={Col} md="6">
+                <Form.Label>Email</Form.Label>
+                <Form.Control
+                  name="companyName"
+                  required
+                  type="text"
+                  placeholder=""
+                />
+              </Form.Group>
 
             </Row>
+
 
 
 
