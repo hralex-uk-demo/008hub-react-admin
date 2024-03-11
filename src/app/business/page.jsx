@@ -36,41 +36,19 @@ const Business = () => {
     rowHeight: 50, // Adjust the row height as needed
   };
 
-  useEffect(() => {
-    console.log("useEffect() method called");
-    console.log(editedDocument);
-
-    if (editedDocument) { 
-      const form = document.getElementById("documentForm");
-      form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
-      form.elements["businessCategory"].value = selectedBusinessCategoryId;
-      form.elements["name"].value = editedDocument.name;
-    };
-
-    const httpBackendService = new HttpBackendService();
-    httpBackendService.fetchData("getBusinessCategories")
-    .then((data) => {
-      // fetching data
-      console.info('fetching business categories data:', data);
-      setBusinessCategoriesList(data);
-    })
-    .catch((error) => {
-      console.error('Error fetching business categories data:', error);
-    });
-
-  }, [editedDocument]);
   // Define CSS styles for the cell and header font size
   const cellStyle = { fontSize: '16px' };
   const headerStyle = { fontSize: '16px' };
 
   const [columnDefs, setColumnDefs] = useState([
 
-    { field: 'Business Name', sortable: true, filter: true, width: 180 },
-    { field: 'Postcode', sortable: true, width: 150 },  
-    { field: 'Phone Number', sortable: true },
-    { field: 'Mobile Number', sortable: true },    
-    { field: 'Email', sortable: true },    
-    { field: 'Activation code', sortable: true },    
+    { field: 'businessName', sortable: true, filter: true, width: 180 },
+    { field: 'postalCode', sortable: true, width: 150 },  
+    { field: 'phoneNumber', sortable: true },
+    { field: 'mobileNumber', sortable: true },    
+    { field: 'email', sortable: true },    
+    { field: 'Activation code', sortable: true },
+    { field: 'status', sortable: true },       
     {
       field: 'actions',
       cellRenderer: params => {
@@ -108,56 +86,7 @@ const Business = () => {
     openModal();
   };
 
-  useEffect(() => {
-    console.log("useEffect() method called");
-    console.log(editedStock);
-
-    if (editedStock) {
-      const form = document.getElementById("stockForm");
-      form.elements["id"].value = editedStock.id;
-      form.elements["stockSymbol"].value = editedStock.stockSymbol;
-      form.elements["companyName"].value = editedStock.companyName;
-      form.elements["currencySymbol"].value = editedStock.currencySymbol;
-      form.elements["sectorName"].value = editedStock.sectorName;
-      form.elements["exchangeCode"].value = editedStock.exchangeCode;
-    }
-
-
-    // Populate all static data
-
-    // Create an instance of the HttpBackendService
-    const httpBackendService = new HttpBackendService();
-
-
-      var searchDataJSON = {};
-
-      console.log("handleSubmit() method called > modalMode", modalMode);
-
-      searchDataJSON = {
-          endpoint: 'searchBusinesses',
-          countryCode: 'gb',
-          search: [
-            {
-                field : 'searchKey',
-                condition : "==", 
-                value : "wd6" 
-            }
-          ]                
-      };
-
-      console.log(searchDataJSON);
-
-    // Fetch data from the service when the component mounts
-    httpBackendService.searchData(searchDataJSON)
-      .then((data) => {
-        // fetching data
-        console.info('fetching data:', data);
-        //setRowData(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
-      });
-  }, [editedStock]); // The empty array [] ensures this effect runs only once when the component mounts
+  
 
   // State to track if the modal should be shown or hidden
   const [showModal, setShowModal] = useState(false);
@@ -356,17 +285,37 @@ const Business = () => {
       .catch((error) => {
         console.error('Error fetching Business Categories data:', error);
       });
-  
-    // Fetch stocks
-    const graphQLService = new GraphQLService();
-    graphQLService.fetchStocksData()
-      .then((stocksData) => {
-        console.info('fetching stock data:', stocksData);
-        setRowData(stocksData);
+
+      var searchDataJSON = {};
+
+      console.log("handleSubmit() method called > modalMode", modalMode);
+
+      searchDataJSON = {
+          endpoint: 'searchBusinesses',
+          countryCode: 'gb',
+          search: [
+            {
+                field : 'searchKey',
+                condition : "==", 
+                value : "wd6" 
+            }
+          ]                
+      };
+
+      console.log(searchDataJSON);
+
+    // Fetch data from the service when the component mounts
+    httpBackendService.searchData(searchDataJSON)
+      .then((data) => {
+        // fetching data
+        console.info('fetching data:', data);
+        setRowData(data);
       })
       .catch((error) => {
-        console.error('Error fetching stock data:', error);
+        console.error('Error fetching data:', error);
       });
+  
+
   
   }, []);
   

@@ -23,8 +23,8 @@ export class HttpBackendService {
       }
 
       const responseData = await response.json();
-      console.log("received response from server > responseData > ", responseData);
-      return responseData;
+      console.log("received response from server > responseData > ", responseData.data.businesses);
+      return responseData.data.businesses;
   }
 
     async fetchData(endpointOperation: any) {
