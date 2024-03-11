@@ -7,6 +7,26 @@ export class HttpBackendService {
 
     apiKey = '?apiKey=2b1b02b0a6b64bc9b817cfd414148795';
 
+    async searchData(requestBody: any) {
+      console.log('searchData() method called > requestBody > ', requestBody);
+ 
+      const response = await fetch(this.hubAPIEndpoint , {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const responseData = await response.json();
+      console.log("received response from server > responseData > ", responseData);
+      return responseData;
+  }
+
     async fetchData(endpointOperation: any) {
         console.log('fetchData() method called > endpointOperation > ', endpointOperation);
 

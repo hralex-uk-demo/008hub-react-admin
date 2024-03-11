@@ -129,12 +129,30 @@ const Business = () => {
     const httpBackendService = new HttpBackendService();
 
 
+      var searchDataJSON = {};
+
+      console.log("handleSubmit() method called > modalMode", modalMode);
+
+      searchDataJSON = {
+          endpoint: 'searchBusinesses',
+          countryCode: 'gb',
+          search: [
+            {
+                field : 'searchKey',
+                condition : "==", 
+                value : "wd6" 
+            }
+          ]                
+      };
+
+      console.log(searchDataJSON);
+
     // Fetch data from the service when the component mounts
-    httpBackendService.fetchData("exchanges")
+    httpBackendService.searchData(searchDataJSON)
       .then((data) => {
         // fetching data
         console.info('fetching data:', data);
-        setRowData(data);
+        //setRowData(data);
       })
       .catch((error) => {
         console.error('Error fetching data:', error);
