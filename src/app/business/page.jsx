@@ -6,6 +6,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { Button, Modal, Badge, Form, Dropdown, Col, Row } from 'react-bootstrap';
 import { FaEdit, FaTrash } from 'react-icons/fa';
+import { FaSearch } from 'react-icons/fa';
 
 import { GraphQLService } from '../graphql/graphql.service';
 
@@ -270,7 +271,9 @@ const Business = () => {
           categoryDocId: form.elements["businessCategory"].value,
           subCategoryDocId: form.elements["businessSubCategory"].value,
           businessName: form.elements["businessName"].value,
-          countryCode: 'gb',
+          countryCode: 'gb',          
+          mobileNumber: form.elements["mobileNumber"].value,
+          email: form.elements["email"].value,
           address: { 
             addressLine1: form.elements["addressLine1"].value,
             addressLine2: form.elements["addressLine2"].value,
@@ -403,6 +406,35 @@ const Business = () => {
                           ))}
                     </Form.Select>
         </Form.Group>
+
+        <Form.Group  md="2" >
+                <Form.Control
+                  name="Search"
+                  required
+                  type="varchar"
+                  placeholder="Postal Code (Search...)"
+                />
+              </Form.Group> 
+
+
+         
+          <div className="btn-toolbar ml-4 mr-4">
+          <button type="button" className="btn btn-secondary borderRadiusb1  d-flex  align-items-center" onClick={""}>
+          <span style={{ fontSize: '23px' }}>
+          <FaSearch />
+        </span> 
+          </button>
+        </div>  
+
+        
+        {/* <div className="btn-toolbar ml-2 mr-2">
+          <button type="button" className="btn btn-dark borderRadiusb1  d-flex  align-items-center" onClick={""}> 
+        <span>Search...</span>
+          </button>
+        </div>
+         */}
+
+
         <div className="btn-toolbar mb-2 mb-md-0">
           <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddStockClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
@@ -537,7 +569,7 @@ const Business = () => {
               <Form.Group as={Col} md="6" >
                 <Form.Label>Contact Number</Form.Label>
                 <Form.Control
-                  name="contactNumber"
+                  name="mobileNumber"
                   required
                   type="text"
                   isValid={validated}
