@@ -128,41 +128,9 @@ const Business = () => {
     // Create an instance of the HttpBackendService
     const httpBackendService = new HttpBackendService();
 
-    httpBackendService.fetchData("currencies")
-      .then((data) => {
-        // fetching data
-        console.info('fetching currencies data:', data);
-        setCurrenciesList(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching customers data:', error);
-      });
-
-      httpBackendService.fetchData("exchanges")
-      .then((data) => {
-        // fetching data
-        console.info('fetching exchanges data:', data);
-        setExchangesList(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching exchanges data:', error);
-      });
-
-      httpBackendService.fetchData("sectors")
-      .then((data) => {
-        // fetching data
-        console.info('fetching sectors data:', data);
-        setSectorsList(data);
-      })
-      .catch((error) => {
-        console.error('Error fetching sectors data:', error);
-      });
-
-    // Create an instance of the GraphQLService
-    const graphQLService = new GraphQLService();
 
     // Fetch data from the service when the component mounts
-    graphQLService.fetchStocksData()
+    httpBackendService.fetchData("exchanges")
       .then((data) => {
         // fetching data
         console.info('fetching data:', data);
