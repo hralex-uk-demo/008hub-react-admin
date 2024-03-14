@@ -13,13 +13,15 @@ import { HttpBackendService } from '../../services/httpbackend.service';
 
 const { v4: uuidv4 } = require('uuid');
 
-const BusinessCategory = () => {
+const BusinessSubCategory = () => {
 
   const [rowData, setRowData] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState([]);
   const [validated, setValidated] = useState(false);
   const [editedDocument, setEditedDocument] = useState(null);
   const [modalMode, setModalMode] = useState("Add");
   const [deletedDocument, setDeletedDocument] = useState({});
+  const [businessCategoriesList, setBusinessCategoriesList] = useState([]);
   
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
@@ -72,29 +74,47 @@ const BusinessCategory = () => {
     console.log("useEffect() method called");
     console.log(editedDocument);
 
-    if (editedDocument) {
+    if (editedDocument) { 
       const form = document.getElementById("documentForm");
-      form.elements["categoryDocId"].value = editedDocument.categoryDocId;
+      form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
+      form.elements["businessCategory"].value = selectedCategoryId;
       form.elements["name"].value = editedDocument.name;
     };
 
-    fetchDataFromAPI();    
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBusinessCategories")
+    .then((data) => {
+      // fetching data
+      console.info('fetching business categories data:', data);
+      setBusinessCategoriesList(data);
+    })
+    .catch((error) => {
+      console.error('Error fetching business categories data:', error);
+    });
 
   }, [editedDocument]);
   
 
-  const fetchDataFromAPI = () => {
+  const handleBusinessCategoryChange = (event) => {
+    const selectedCategoryId = event.target.value;
+    setSelectedCategoryId(selectedCategoryId);
+    if (selectedCategoryId != "") {
+      fetchDataFromAPI(selectedCategoryId); 
+    }    
+  };
+
+  const fetchDataFromAPI = (selectedCategoryId) => {
         // Create an instance of the HttpBackendService
         const httpBackendService = new HttpBackendService();
 
-        httpBackendService.fetchData("getBusinessCategories")
+        httpBackendService.fetchSubCategories("getBusinessSubCategories", selectedCategoryId)
         .then((data) => {
           // fetching data
-          console.info('fetching Business Categories data:', data);
+          console.info('fetching Business Sub Categories data:', data);
           setRowData(data);
         })
         .catch((error) => {
-          console.error('Error fetching Categories data:', error);
+          console.error('Error fetching Sub Categories data:', error);
         });
   };
 
@@ -128,13 +148,14 @@ const BusinessCategory = () => {
   // Function to close the delete modal
   const deleteDocument = () => {  
     
-    console.log("deleteDocument() method called > ", deletedDocument.categoryDocId)
+    console.log("deleteDocument() method called > ", deletedDocument.subCategoryDocId, selectedCategoryId)
 
       const httpBackendService = new HttpBackendService();
 
       let deletedBusinessCategoryJSON = {
-        endpoint: "deleteBusinessCategory",
-        categoryDocId: deletedDocument.categoryDocId       
+        endpoint: "deleteBusinessSubCategory",
+        categoryDocId: selectedCategoryId,
+        subCategoryDocId: deletedDocument.subCategoryDocId       
       };
   
       httpBackendService.deleteDocument(deletedBusinessCategoryJSON)
@@ -164,32 +185,31 @@ const BusinessCategory = () => {
 
             console.log("handleSubmit() method called", modalMode );
 
-              let newBusinessCategoryJSON = {
-                  endpoint: "addBusinessCategory",
-                  category : {
-                    name : form.elements["name"].value,
-                    status: true
-                  }
+              let newBusinessSubCategoryJSON = {
+                  endpoint: "addBusinessSubCategory",
+                  name : form.elements["name"].value,
+                  categoryDocId: form.elements["businessCategory"].value,
+                  status: true
               };
+            
 
-  
-            console.log(newBusinessCategoryJSON);
+            console.log(newBusinessSubCategoryJSON);
 
 
             if (form.checkValidity() === true) {
-                console.log(newBusinessCategoryJSON);
+                console.log(newBusinessSubCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.insertDocument(newBusinessCategoryJSON)
+                httpBackendService.insertDocument(newBusinessSubCategoryJSON)
                 .then((data) => {
                   closeModal();
                   fetchDataFromAPI();
-                  console.info('inserting business category data:', data);                  
+                  console.info('inserting business sub category data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error inserting business category data:', error);
+                  console.error('Error inserting business sub category data:', error);
                 });
               
               }  
@@ -201,15 +221,14 @@ const BusinessCategory = () => {
             console.log("handleSubmit() method called", modalMode );
 
             udpateBusinessCategoryJSON = {
-                  endpoint: "updateBusinessCategory",
-                  categoryDocId: form.elements["categoryDocId"].value, 
-                  category : {                
-                    name : form.elements["name"].value,
-                    status: false,
-                  }
+                  endpoint: "updateBusinessSubCategory",
+                  categoryDocId: form.elements["businessCategory"].value,
+                  subCategoryDocId: form.elements["subCategoryDocId"].value,                 
+                  name : form.elements["name"].value,
+                  status: false,
               };
 
-            console.log(udpateBusinessCategoryJSON);
+            console.log("udpateBusinessCategoryJSON > ", udpateBusinessCategoryJSON);
 
             if (form.checkValidity() === true) {
                 console.log(udpateBusinessCategoryJSON);
@@ -222,10 +241,10 @@ const BusinessCategory = () => {
                   closeModal();
                   // fetching data
                   fetchDataFromAPI();  
-                  console.info('updating sectors data:', data);                  
+                  console.info('updating business sub category data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error updating sectors data:', error);
+                  console.error('Error updating business sub category data:', error);
                 });
               }
     }
@@ -241,7 +260,15 @@ const BusinessCategory = () => {
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Business Categories</h1>
+        <h1 className="h2">Business Sub Categories</h1>
+        <Form.Group as={Col} md="2">
+                    <Form.Select aria-label="businessCategory" name="businessCategoryFilter" required isValid={validated} onChange={handleBusinessCategoryChange} >
+                          <option value="">Category</option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
         <div className="btn-toolbar mb-2 mb-md-0">
           <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBusinessCategoryClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
@@ -263,17 +290,32 @@ const BusinessCategory = () => {
           validated={validated}
           onSubmit={handleSubmit}>       
             <Modal.Header closeButton>
-              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Business Category</Modal.Title>
+              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Business Sub Category</Modal.Title>
             </Modal.Header>
             <Modal.Body>      
              
             {/* Add a hidden field for the ID */}
             <Form.Group as={Col} md="4">
                 <Form.Control
-                  name="categoryDocId"
+                  name="subCategoryDocId"
                   type="hidden"
                 />
             </Form.Group>
+
+            <Row className="mb-4">
+
+                <Form.Group as={Col} md="6">
+                    <Form.Label>Category</Form.Label>
+                    <Form.Select aria-label="businessCategory" name="businessCategory" required isValid={validated} disabled={modalMode === "Edit"}>
+                          <option value=""></option>
+                          {businessCategoriesList.map((businessCategory, index) => (
+                            <option key={index}  value={businessCategory.categoryDocId}>{businessCategory.name}</option>
+                          ))}
+                    </Form.Select>
+                </Form.Group>
+
+            </Row>
+
 
             <Row className="mb-4">
 
@@ -334,4 +376,4 @@ const BusinessCategory = () => {
 
 };
 
-export default BusinessCategory;
+export default BusinessSubCategory;
