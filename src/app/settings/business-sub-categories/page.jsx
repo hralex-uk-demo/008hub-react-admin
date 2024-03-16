@@ -98,6 +98,7 @@ const BusinessSubCategory = () => {
   const handleBusinessCategoryChange = (event) => {
     const selectedCategoryId = event.target.value;
     setSelectedCategoryId(selectedCategoryId);
+    console.info('handleBusinessCategoryChange > ', selectedCategoryId);
     if (selectedCategoryId != "") {
       fetchDataFromAPI(selectedCategoryId); 
     }    
@@ -162,7 +163,7 @@ const BusinessSubCategory = () => {
       .then((data) => {
         closeDeleteModal();
         // fetching data
-        fetchDataFromAPI();
+        fetchDataFromAPI(selectedCategoryId);
         console.info('Deleting business category :', data);                  
       })
       .catch((error) => {
@@ -187,9 +188,11 @@ const BusinessSubCategory = () => {
 
               let newBusinessSubCategoryJSON = {
                   endpoint: "addBusinessSubCategory",
-                  name : form.elements["name"].value,
                   categoryDocId: form.elements["businessCategory"].value,
-                  status: true
+                  subCategory : {
+                    name : form.elements["name"].value,                  
+                    status: true
+                  }
               };
             
 
@@ -205,7 +208,7 @@ const BusinessSubCategory = () => {
                 httpBackendService.insertDocument(newBusinessSubCategoryJSON)
                 .then((data) => {
                   closeModal();
-                  fetchDataFromAPI();
+                  fetchDataFromAPI(form.elements["businessCategory"].value);
                   console.info('inserting business sub category data:', data);                  
                 })
                 .catch((error) => {
@@ -223,9 +226,11 @@ const BusinessSubCategory = () => {
             udpateBusinessCategoryJSON = {
                   endpoint: "updateBusinessSubCategory",
                   categoryDocId: form.elements["businessCategory"].value,
-                  subCategoryDocId: form.elements["subCategoryDocId"].value,                 
-                  name : form.elements["name"].value,
-                  status: false,
+                  subCategoryDocId: form.elements["subCategoryDocId"].value,
+                  subCategory : {                 
+                    name : form.elements["name"].value,
+                    status: false,
+                  }
               };
 
             console.log("udpateBusinessCategoryJSON > ", udpateBusinessCategoryJSON);
@@ -240,7 +245,7 @@ const BusinessSubCategory = () => {
                 .then((data) => {
                   closeModal();
                   // fetching data
-                  fetchDataFromAPI();  
+                  fetchDataFromAPI(form.elements["businessCategory"].value);  
                   console.info('updating business sub category data:', data);                  
                 })
                 .catch((error) => {
