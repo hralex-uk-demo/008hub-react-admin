@@ -8,12 +8,11 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 import { Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-
 import { HttpBackendService } from '../../services/httpbackend.service';
 
 const { v4: uuidv4 } = require('uuid');
 
-const BannerCategory= () => {
+const BannerCategory = () => {
 
   const [rowData, setRowData] = useState([]);
   const [validated, setValidated] = useState(false);
@@ -87,10 +86,10 @@ const BannerCategory= () => {
         // Create an instance of the HttpBackendService
         const httpBackendService = new HttpBackendService();
 
-        httpBackendService.fetchData("getBusinessCategories")
+        httpBackendService.fetchData("getBannerCategory")
         .then((data) => {
           // fetching data
-          console.info('fetching Business Categories data:', data);
+          console.info('fetching Banner Categories data:', data);
           setRowData(data);
         })
         .catch((error) => {
@@ -142,10 +141,10 @@ const BannerCategory= () => {
         closeDeleteModal();
         // fetching data
         fetchDataFromAPI();
-        console.info('Deleting business category :', data);                  
+        console.info('Deleting banner category :', data);                  
       })
       .catch((error) => {
-        console.error('Error deleting business category:', error);
+        console.error('Error deleting banner category:', error);
       });
 
   };
@@ -186,21 +185,21 @@ const BannerCategory= () => {
                 .then((data) => {
                   closeModal();
                   fetchDataFromAPI();
-                  console.info('inserting business category data:', data);                  
+                  console.info('inserting banner category data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error inserting business category data:', error);
+                  console.error('Error inserting banner category data:', error);
                 });
               
               }  
               
     } else {
 
-      var updateBannerCategoryJSON = {};
+      var udpateBannerCategoryJSON = {};
 
             console.log("handleSubmit() method called", modalMode );
 
-            updateBannerCategoryJSON = {
+            udpateBannerCategoryJSON = {
                   endpoint: "updateBannerCategory",
                   categoryDocId: form.elements["categoryDocId"].value, 
                   category : {                
@@ -209,15 +208,15 @@ const BannerCategory= () => {
                   }
               };
 
-            console.log(updateBannerCategoryJSON);
+            console.log(udpateBannerCategoryJSON);
 
             if (form.checkValidity() === true) {
-                console.log(updateBannerCategoryJSON);
+                console.log(udpateBannerCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.updateDocument(updateBannerCategoryJSON)
+                httpBackendService.updateDocument(udpateBannerCategoryJSON)
                 .then((data) => {
                   closeModal();
                   // fetching data
@@ -241,7 +240,7 @@ const BannerCategory= () => {
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Banner Category</h1>
+        <h1 className="h2">Banner Categories</h1>
         <div className="btn-toolbar mb-2 mb-md-0">
           <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBannerCategoryClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
@@ -263,7 +262,7 @@ const BannerCategory= () => {
           validated={validated}
           onSubmit={handleSubmit}>       
             <Modal.Header closeButton>
-              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Banner Categories</Modal.Title>
+              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Banner Category</Modal.Title>
             </Modal.Header>
             <Modal.Body>      
              
@@ -335,3 +334,4 @@ const BannerCategory= () => {
 };
 
 export default BannerCategory;
+

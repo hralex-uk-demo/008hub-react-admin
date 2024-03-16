@@ -8,7 +8,6 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 
 import { Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import { FaEdit, FaTrash } from 'react-icons/fa';
-
 import { HttpBackendService } from '../../services/httpbackend.service';
 
 const { v4: uuidv4 } = require('uuid');
@@ -335,3 +334,4 @@ const BusinessCategory = () => {
 };
 
 export default BusinessCategory;
+

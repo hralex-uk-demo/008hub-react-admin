@@ -217,7 +217,7 @@ const BusinessCategory = () => {
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.updateDocument(udpateBusinessCategoryJSON)
+                httpBackendService.updateDocument(udpateBannerSubCategoriesJSON)
                 .then((data) => {
                   closeModal();
                   // fetching data
