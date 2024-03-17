@@ -13,13 +13,15 @@ import { HttpBackendService } from '../../services/httpbackend.service';
 
 const { v4: uuidv4 } = require('uuid');
 
-const BusinessCategory = () => {
+const BannerSubCategoryItems = () => {
 
   const [rowData, setRowData] = useState([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState([]);
   const [validated, setValidated] = useState(false);
   const [editedDocument, setEditedDocument] = useState(null);
   const [modalMode, setModalMode] = useState("Add");
   const [deletedDocument, setDeletedDocument] = useState({});
+  const [bannerCategoriesList, setBannerCategoriesList] = useState([]);
   
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
@@ -48,10 +50,10 @@ const BusinessCategory = () => {
   ]);
 
   const onEditDocument = (params) => {
-    console.log("onEditDocument() method called");
-    console.log(params);
+    console.log("onEditDocument() method called > ", params);
+    setEditedDocument({});      
     setEditedDocument(params);
-    setModalMode("Edit"); // Step 3: Set modal mode to "Edit"
+    setModalMode("Edit");
     openModal();
   };
 
@@ -62,7 +64,7 @@ const BusinessCategory = () => {
     openDeleteModal();
   };
 
-  const handleAddBusinessCategoryClick = () => {
+  const handleAddBannerCategoryClick = () => {
     setEditedDocument(null); // Clear any existing edited stock data
     setModalMode("Add"); // Set modal mode to "Add"
     openModal();
@@ -72,29 +74,48 @@ const BusinessCategory = () => {
     console.log("useEffect() method called");
     console.log(editedDocument);
 
-    if (editedDocument) {
+    if (editedDocument) { 
       const form = document.getElementById("documentForm");
-      form.elements["categoryDocId"].value = editedDocument.categoryDocId;
+      form.elements["subCategoryDocId"].value = editedDocument.subCategoryDocId;
+      form.elements["bannerCategory"].value = selectedCategoryId;
       form.elements["name"].value = editedDocument.name;
     };
 
-    fetchDataFromAPI();    
+    const httpBackendService = new HttpBackendService();
+    httpBackendService.fetchData("getBannerCategories")
+    .then((data) => {
+      // fetching data
+      console.info('fetching banner categories data:', data);
+      setBannerCategoriesList(data);
+    })
+    .catch((error) => {
+      console.error('Error fetching banner categories data:', error);
+    });
 
   }, [editedDocument]);
   
 
-  const fetchDataFromAPI = () => {
+  const handleBannerCategoryChange = (event) => {
+    const selectedCategoryId = event.target.value;
+    setSelectedCategoryId(selectedCategoryId);
+    console.info('handleBannerCategoryChange > ', selectedCategoryId);
+    if (selectedCategoryId != "") {
+      fetchDataFromAPI(selectedCategoryId); 
+    }    
+  };
+
+  const fetchDataFromAPI = (selectedCategoryId) => {
         // Create an instance of the HttpBackendService
         const httpBackendService = new HttpBackendService();
 
-        httpBackendService.fetchData("getBusinessCategories")
+        httpBackendService.fetchSubCategories("getBannerSubCategories", selectedCategoryId)
         .then((data) => {
           // fetching data
-          console.info('fetching Business Categories data:', data);
+          console.info('fetching Banner Sub Categories data:', data);
           setRowData(data);
         })
         .catch((error) => {
-          console.error('Error fetching Categories data:', error);
+          console.error('Error fetching Sub Categories data:', error);
         });
   };
 
@@ -128,24 +149,25 @@ const BusinessCategory = () => {
   // Function to close the delete modal
   const deleteDocument = () => {  
     
-    console.log("deleteDocument() method called > ", deletedDocument.categoryDocId)
+    console.log("deleteDocument() method called > ", deletedDocument.subCategoryDocId, selectedCategoryId)
 
       const httpBackendService = new HttpBackendService();
 
-      let deletedBusinessCategoryJSON = {
-        endpoint: "deleteBusinessCategory",
-        categoryDocId: deletedDocument.categoryDocId       
+      let deletedBannerCategoryJSON = {
+        endpoint: "deleteBannerSubCategory",
+        categoryDocId: selectedCategoryId,
+        subCategoryDocId: deletedDocument.subCategoryDocId       
       };
   
-      httpBackendService.deleteDocument(deletedBusinessCategoryJSON)
+      httpBackendService.deleteDocument(deletedBannerCategoryJSON)
       .then((data) => {
         closeDeleteModal();
         // fetching data
-        fetchDataFromAPI();
-        console.info('Deleting business category :', data);                  
+        fetchDataFromAPI(selectedCategoryId);
+        console.info('Deleting banner category :', data);                  
       })
       .catch((error) => {
-        console.error('Error deleting business category:', error);
+        console.error('Error deleting banner category:', error);
       });
 
   };
@@ -164,68 +186,70 @@ const BusinessCategory = () => {
 
             console.log("handleSubmit() method called", modalMode );
 
-              let newBusinessCategoryJSON = {
-                  endpoint: "addBusinessCategory",
-                  category : {
-                    name : form.elements["name"].value,
+              let newBannerSubCategoryJSON = {
+                  endpoint: "addBannerSubCategory",
+                  categoryDocId: form.elements["bannerCategory"].value,
+                  subCategory : {
+                    name : form.elements["name"].value,                  
                     status: true
                   }
               };
+            
 
-  
-            console.log(newBusinessCategoryJSON);
+            console.log(newBannerSubCategoryJSON);
 
 
             if (form.checkValidity() === true) {
-                console.log(newBusinessCategoryJSON);
+                console.log(newBannerSubCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.insertDocument(newBusinessCategoryJSON)
+                httpBackendService.insertDocument(newBannerSubCategoryJSON)
                 .then((data) => {
                   closeModal();
-                  fetchDataFromAPI();
-                  console.info('inserting business category data:', data);                  
+                  fetchDataFromAPI(form.elements["bannerCategory"].value);
+                  console.info('inserting banner sub category data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error inserting business category data:', error);
+                  console.error('Error inserting banner sub category data:', error);
                 });
               
               }  
               
     } else {
 
-      var udpateBusinessCategoryJSON = {};
+      var udpateBannerCategoryJSON = {};
 
             console.log("handleSubmit() method called", modalMode );
 
-            udpateBusinessCategoryJSON = {
-                  endpoint: "updateBusinessCategory",
-                  categoryDocId: form.elements["categoryDocId"].value, 
-                  category : {                
+            udpateBannerCategoryJSON = {
+                  endpoint: "updateBannerSubCategory",
+                  categoryDocId: form.elements["bannerCategory"].value,
+                  subCategoryDocId: form.elements["subCategoryDocId"].value,
+                  subCategory : {                 
                     name : form.elements["name"].value,
                     status: false,
                   }
               };
 
-            console.log(udpateBusinessCategoryJSON);
+            console.log("udpateBannerCategoryJSON > ", udpateBannerCategoryJSON);
 
             if (form.checkValidity() === true) {
-                console.log(udpateBusinessCategoryJSON);
+                console.log(udpateBannerCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.updateDocument(udpateBannerSubCategoriesJSON)
+                httpBackendService.updateDocument(udpateBannerCategoryJSON)
                 .then((data) => {
                   closeModal();
                   // fetching data
-                  fetchDataFromAPI();  
-                  console.info('updating sectors data:', data);                  
+                  fetchDataFromAPI(form.elements["bannerCategory"].value);  
+                  console.info('updating banner sub category data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error updating sectors data:', error);
+                  console.error('Error updating banner sub category data:', error);
                 });
               }
     }
@@ -241,9 +265,17 @@ const BusinessCategory = () => {
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Banner Sub Categories</h1>
+        <h1 className="h2">Banner Items</h1>
+        <Form.Group as={Col} md="2">
+                    <Form.Select aria-label="bannerCategory" name="bannerCategoryFilter" required isValid={validated} onChange={handleBannerCategoryChange} >
+                          <option value="">Category</option>
+                          {bannerCategoriesList.map((bannerCategory, index) => (
+                            <option key={index}  value={bannerCategory.categoryDocId}>{bannerCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
         <div className="btn-toolbar mb-2 mb-md-0">
-          <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBusinessCategoryClick}>
+          <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBannerCategoryClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
           </button>
         </div>
@@ -263,17 +295,31 @@ const BusinessCategory = () => {
           validated={validated}
           onSubmit={handleSubmit}>       
             <Modal.Header closeButton>
-              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Business Category</Modal.Title>
+              <Modal.Title> { modalMode === 'Add' ? 'New' : 'Edit' } Banner Sub Category</Modal.Title>
             </Modal.Header>
             <Modal.Body>      
              
             {/* Add a hidden field for the ID */}
             <Form.Group as={Col} md="4">
                 <Form.Control
-                  name="categoryDocId"
+                  name="subCategoryDocId"
                   type="hidden"
                 />
             </Form.Group>
+
+            <Row className="mb-4">
+
+                <Form.Group as={Col} md="6">
+                    <Form.Label>Category</Form.Label>
+                    <Form.Select aria-label="bannerCategory" name="bannerCategory" required isValid={validated} disabled={modalMode === "Edit"}>
+                          <option value=""></option>
+                          {bannerCategoriesList.map((bannerCategory, index) => (
+                            <option key={index}  value={bannerCategory.categoryDocId}>{bannerCategory.name}</option>
+                          ))}
+                    </Form.Select>
+                </Form.Group>
+
+            </Row>
 
 
             <Row className="mb-4">
@@ -335,4 +381,4 @@ const BusinessCategory = () => {
 
 };
 
-export default BusinessCategory;
+export default BannerSubCategoryItems;

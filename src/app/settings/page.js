@@ -44,7 +44,7 @@ const Settings = () => {
                                 <BannerSubCategories />
                         </Tab>
 
-                        <Tab eventKey="banner-sub-category-items" title="Banner Sub Category Items">
+                        <Tab eventKey="banner-sub-category-items" title="Banner Items">
                                 <BannerSubCategoryItems />
                         </Tab>
         
