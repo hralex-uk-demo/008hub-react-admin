@@ -45,7 +45,7 @@ export class HttpBackendService {
         }
 
         const responseData = await response.json();
-        console.log("received response from server > fetchData > ", responseData.data.categories);
+        console.log("received response from server > fetchData > endpointOperation > ", endpointOperation, responseData.data.categories);
         return responseData.data.categories;
     }
 

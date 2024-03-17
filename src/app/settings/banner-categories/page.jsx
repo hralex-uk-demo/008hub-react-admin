@@ -86,14 +86,14 @@ const BannerCategory = () => {
         // Create an instance of the HttpBackendService
         const httpBackendService = new HttpBackendService();
 
-        httpBackendService.fetchData("getBannerCategory")
+        httpBackendService.fetchData("getBannerCategories")
         .then((data) => {
           // fetching data
           console.info('fetching Banner Categories data:', data);
           setRowData(data);
         })
         .catch((error) => {
-          console.error('Error fetching Categories data:', error);
+          console.error('Error fetching Banner Categories data:', error);
         });
   };
 
@@ -131,12 +131,12 @@ const BannerCategory = () => {
 
       const httpBackendService = new HttpBackendService();
 
-      let deletedBannerCategoryJSON = {
+      let deletedBusinessCategoryJSON = {
         endpoint: "deleteBannerCategory",
         categoryDocId: deletedDocument.categoryDocId       
       };
   
-      httpBackendService.deleteDocument(deletedBannerCategoryJSON)
+      httpBackendService.deleteDocument(deletedBusinessCategoryJSON)
       .then((data) => {
         closeDeleteModal();
         // fetching data
@@ -163,7 +163,7 @@ const BannerCategory = () => {
 
             console.log("handleSubmit() method called", modalMode );
 
-              let newBannerCategoryJSON = {
+              let newBusinessCategoryJSON = {
                   endpoint: "addBannerCategory",
                   category : {
                     name : form.elements["name"].value,
@@ -172,16 +172,16 @@ const BannerCategory = () => {
               };
 
   
-            console.log(newBannerCategoryJSON);
+            console.log(newBusinessCategoryJSON);
 
 
             if (form.checkValidity() === true) {
-                console.log(newBannerCategoryJSON);
+                console.log(newBusinessCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.insertDocument(newBannerCategoryJSON)
+                httpBackendService.insertDocument(newBusinessCategoryJSON)
                 .then((data) => {
                   closeModal();
                   fetchDataFromAPI();
@@ -195,11 +195,11 @@ const BannerCategory = () => {
               
     } else {
 
-      var udpateBannerCategoryJSON = {};
+      var udpateBusinessCategoryJSON = {};
 
             console.log("handleSubmit() method called", modalMode );
 
-            udpateBannerCategoryJSON = {
+            udpateBusinessCategoryJSON = {
                   endpoint: "updateBannerCategory",
                   categoryDocId: form.elements["categoryDocId"].value, 
                   category : {                
@@ -208,23 +208,23 @@ const BannerCategory = () => {
                   }
               };
 
-            console.log(udpateBannerCategoryJSON);
+            console.log(udpateBusinessCategoryJSON);
 
             if (form.checkValidity() === true) {
-                console.log(udpateBannerCategoryJSON);
+                console.log(udpateBusinessCategoryJSON);
                 setValidated(true);
                 
                 const httpBackendService = new HttpBackendService();
 
-                httpBackendService.updateDocument(udpateBannerCategoryJSON)
+                httpBackendService.updateDocument(udpateBusinessCategoryJSON)
                 .then((data) => {
                   closeModal();
                   // fetching data
                   fetchDataFromAPI();  
-                  console.info('updating sectors data:', data);                  
+                  console.info('updating banner data:', data);                  
                 })
                 .catch((error) => {
-                  console.error('Error updating sectors data:', error);
+                  console.error('Error updating banner data:', error);
                 });
               }
     }
@@ -240,7 +240,7 @@ const BannerCategory = () => {
   return (
     <div className='ag-theme-alpine' style={{ height: '100%', width: '100%' }}>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 className="h2">Banner Categories</h1>
+        <h1 className="h2">Bannner Categories</h1>
         <div className="btn-toolbar mb-2 mb-md-0">
           <button type="button" className="btn btn-primary borderRadiusb1  d-flex  align-items-center" onClick={handleAddBannerCategoryClick}>
             <span ><img src="../add-ic.png" className="addIcheight" /></span>  <span>New</span>
