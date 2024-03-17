@@ -268,7 +268,7 @@ const BannerSubCategory = () => {
         <h1 className="h2">Banner Sub Categories</h1>
         <Form.Group as={Col} md="2">
                     <Form.Select aria-label="bannerCategory" name="bannerCategoryFilter" required isValid={validated} onChange={handleBannerCategoryChange} >
-                          <option value="">Category</option>
+                          <option value="">Banner Category</option>
                           {bannerCategoriesList.map((bannerCategory, index) => (
                             <option key={index}  value={bannerCategory.categoryDocId}>{bannerCategory.name}</option>
                           ))}

@@ -22,6 +22,7 @@ const BannerSubCategoryItems = () => {
   const [modalMode, setModalMode] = useState("Add");
   const [deletedDocument, setDeletedDocument] = useState({});
   const [bannerCategoriesList, setBannerCategoriesList] = useState([]);
+  const [bannerSubCategoriesList, setBannerSubCategoriesList] = useState([]);
   
   const gridOptions = {
     domLayout: 'autoHeight', // Set the domLayout property to 'autoHeight' to adjust the height automatically.
@@ -104,6 +105,11 @@ const BannerSubCategoryItems = () => {
     }    
   };
 
+  const handleBannerSubCategoryChange  = (event) => {
+    const selectedSubCategoryId = event.target.value;
+    console.info('handleBannerSubCategoryChange > ', selectedSubCategoryId);  
+  };
+
   const fetchDataFromAPI = (selectedCategoryId) => {
         // Create an instance of the HttpBackendService
         const httpBackendService = new HttpBackendService();
@@ -112,7 +118,7 @@ const BannerSubCategoryItems = () => {
         .then((data) => {
           // fetching data
           console.info('fetching Banner Sub Categories data:', data);
-          setRowData(data);
+          setBannerSubCategoriesList(data);
         })
         .catch((error) => {
           console.error('Error fetching Sub Categories data:', error);
@@ -268,9 +274,17 @@ const BannerSubCategoryItems = () => {
         <h1 className="h2">Banner Items</h1>
         <Form.Group as={Col} md="2">
                     <Form.Select aria-label="bannerCategory" name="bannerCategoryFilter" required isValid={validated} onChange={handleBannerCategoryChange} >
-                          <option value="">Category</option>
+                          <option value="">Banner Category</option>
                           {bannerCategoriesList.map((bannerCategory, index) => (
                             <option key={index}  value={bannerCategory.categoryDocId}>{bannerCategory.name}</option>
+                          ))}
+                    </Form.Select>
+        </Form.Group>
+        <Form.Group as={Col} md="2">
+                    <Form.Select aria-label="bannerSubCategory" name="bannerSubCategoryFilter" required isValid={validated} onChange={handleBannerSubCategoryChange} >
+                          <option value="">Banner Sub Category</option>
+                          {bannerSubCategoriesList.map((bannerSubCategory, index) => (
+                            <option key={index}  value={bannerSubCategory.subCategoryDocId}>{bannerSubCategory.name}</option>
                           ))}
                     </Form.Select>
         </Form.Group>
