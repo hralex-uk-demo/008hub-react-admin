@@ -50,10 +50,10 @@ const BusinessSubCategory = () => {
   ]);
 
   const onEditDocument = (params) => {
-    console.log("onEditDocument() method called");
-    console.log(params);
+    console.log("onEditDocument() method called > ", params);
+    setEditedDocument({});      
     setEditedDocument(params);
-    setModalMode("Edit"); // Step 3: Set modal mode to "Edit"
+    setModalMode("Edit");
     openModal();
   };
 
