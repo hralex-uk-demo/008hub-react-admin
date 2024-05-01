@@ -195,7 +195,8 @@ const Business = () => {
             city: form.elements["city"].value,
             region: form.elements["region"].value,
             postalCode: form.elements["postalCode"].value,
-          }                
+          },
+          profile: {},             
       };
 
       console.log(newBusinessJSON);
